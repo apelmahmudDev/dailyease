@@ -1,0 +1,38 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DailyEase Logo</title>
+  <desc id="desc">A rounded teal app icon with two minimal leaves.</desc>
+
+  <defs>
+    <linearGradient id="bgGradient" x1="72" y1="52" x2="446" y2="462" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F766E"/>
+      <stop offset="0.55" stop-color="#0D9488"/>
+      <stop offset="1" stop-color="#115E59"/>
+    </linearGradient>
+
+    <linearGradient id="leafGradient" x1="137" y1="164" x2="353" y2="367" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D1FAE5"/>
+      <stop offset="0.55" stop-color="#99F6E4"/>
+      <stop offset="1" stop-color="#5EEAD4"/>
+    </linearGradient>
+
+    <linearGradient id="leafShadow" x1="206" y1="266" x2="363" y2="392" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F766E" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#064E3B" stop-opacity="0.38"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="24" y="24" width="464" height="464" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0F172A" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect x="64" y="64" width="384" height="384" rx="96" fill="url(#bgGradient)" filter="url(#softShadow)"/>
+
+  <path d="M303.5 332.6C352.8 286.7 357.7 223.6 343.9 183.7C306.8 196.2 256.3 235.4 244.7 293.4C234.7 342.9 264.8 368.7 303.5 332.6Z" fill="url(#leafShadow)"/>
+
+  <path d="M151.6 185.4C203.8 178.6 257.4 208.2 288.5 261.5C230.6 267.1 177.8 241.5 151.6 185.4Z" fill="url(#leafGradient)"/>
+  <path d="M351.3 169.5C362.8 224.2 337.2 281.8 285.8 316.4C276.4 256.7 300.1 201.8 351.3 169.5Z" fill="url(#leafGradient)"/>
+
+  <path d="M178.6 203.7C223.2 219.6 254.9 241.6 286.7 277.2" stroke="#ECFDF5" stroke-opacity="0.62" stroke-width="12" stroke-linecap="round"/>
+  <path d="M329.8 199.8C310.1 242.4 297.3 278.6 286.9 335.7" stroke="#ECFDF5" stroke-opacity="0.62" stroke-width="12" stroke-linecap="round"/>
+  <path d="M286.4 267.6V356" stroke="#ECFDF5" stroke-width="14" stroke-linecap="round"/>
+</svg>
