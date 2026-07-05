@@ -42,6 +42,14 @@ const el = {
   brandDate: document.getElementById("brandDate"),
   brandWeekday: document.getElementById("brandWeekday"),
   heroAddBtn: document.getElementById("heroAddBtn"),
+  taskDrawerOverlay: document.getElementById("taskDrawerOverlay"),
+  drawerCloseBtn: document.getElementById("drawerCloseBtn"),
+  drawerCancelBtn: document.getElementById("drawerCancelBtn"),
+  drawerTaskForm: document.getElementById("drawerTaskForm"),
+  drawerTaskTitle: document.getElementById("drawerTaskTitle"),
+  drawerTaskDesc: document.getElementById("drawerTaskDesc"),
+  drawerTitleCount: document.getElementById("drawerTitleCount"),
+  drawerDescCount: document.getElementById("drawerDescCount"),
 
   taskForm: document.getElementById("taskForm"),
   taskInput: document.getElementById("taskInput"),
@@ -259,8 +267,50 @@ el.taskForm.addEventListener("submit", (e) => {
   el.taskInput.focus();
 });
 
-el.heroAddBtn.addEventListener("click", () => {
-  el.taskInput.focus();
+function updateDrawerCounts() {
+  el.drawerTitleCount.textContent = `${el.drawerTaskTitle.value.length}/100`;
+  el.drawerDescCount.textContent = `${el.drawerTaskDesc.value.length}/200`;
+}
+
+function openTaskDrawer() {
+  el.taskDrawerOverlay.classList.add("is-open");
+  el.taskDrawerOverlay.setAttribute("aria-hidden", "false");
+  updateDrawerCounts();
+  el.drawerTaskTitle.focus();
+}
+
+function closeTaskDrawer() {
+  el.taskDrawerOverlay.classList.remove("is-open");
+  el.taskDrawerOverlay.setAttribute("aria-hidden", "true");
+}
+
+el.heroAddBtn.addEventListener("click", openTaskDrawer);
+
+el.drawerCloseBtn.addEventListener("click", closeTaskDrawer);
+el.drawerCancelBtn.addEventListener("click", closeTaskDrawer);
+
+el.taskDrawerOverlay.addEventListener("click", (e) => {
+  if (e.target === el.taskDrawerOverlay) closeTaskDrawer();
+});
+
+el.drawerTaskTitle.addEventListener("input", updateDrawerCounts);
+el.drawerTaskDesc.addEventListener("input", updateDrawerCounts);
+
+el.drawerTaskForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!el.drawerTaskTitle.value.trim()) {
+    el.drawerTaskTitle.focus();
+    return;
+  }
+
+  const priority = new FormData(el.drawerTaskForm).get("drawerPriority") ?? "medium";
+  state.day.tasks.push(createTask(el.drawerTaskTitle.value, priority));
+  el.drawerTaskForm.reset();
+  updateDrawerCounts();
+  closeTaskDrawer();
+  renderTasks();
+  persist();
+  showToast("Task saved.");
 });
 
 el.filterSelect.addEventListener("change", () => {
@@ -389,6 +439,9 @@ el.resetOverlay.addEventListener("click", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && el.resetOverlay.classList.contains("is-open")) {
     closeResetDialog();
+  }
+  if (e.key === "Escape" && el.taskDrawerOverlay.classList.contains("is-open")) {
+    closeTaskDrawer();
   }
 });
 
