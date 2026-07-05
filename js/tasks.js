@@ -8,8 +8,6 @@ import { generateId } from "./utils.js";
 
 export const PRIORITIES = ["low", "medium", "high"];
 
-const PRIORITY_WEIGHT = { high: 0, medium: 1, low: 2 };
-
 /** Build a new task object. Throws if the text is empty after trimming. */
 export function createTask(text, priority = "medium") {
   const trimmed = text.trim();
@@ -61,12 +59,7 @@ export function filterByStatus(tasks, status) {
  * (high → low), then by creation order. Does not mutate the input.
  */
 export function sortForDisplay(tasks) {
-  return [...tasks].sort((a, b) => {
-    if (a.done !== b.done) return a.done ? 1 : -1;
-    const byPriority = PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority];
-    if (byPriority !== 0) return byPriority;
-    return a.createdAt - b.createdAt;
-  });
+  return [...tasks];
 }
 
 /** { total, done, remaining } */

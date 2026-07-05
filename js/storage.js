@@ -8,14 +8,34 @@
 import { todayKey } from "./utils.js";
 
 const STORAGE_KEY = "dailyease:day:v1";
+const DEFAULT_NOTE = "Focus on progress,\nnot perfection.\nSmall steps every day\nlead to big changes.";
+
+function taskTime(hours, minutes) {
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date.getTime();
+}
+
+function defaultTasks() {
+  return [
+    { id: "static-morning-workout", text: "Morning workout", priority: "low", done: true, createdAt: taskTime(7, 0) },
+    { id: "static-read-book", text: "Read 15 pages of a book", priority: "medium", done: true, createdAt: taskTime(8, 30) },
+    { id: "static-project-proposal", text: "Finish project proposal", priority: "high", done: false, createdAt: taskTime(10, 0) },
+    { id: "static-team-meeting", text: "Team meeting", priority: "medium", done: false, createdAt: taskTime(11, 30) },
+    { id: "static-lunch-break", text: "Lunch break", priority: "low", done: false, createdAt: taskTime(13, 0) },
+    { id: "static-client-call", text: "Client call", priority: "high", done: false, createdAt: taskTime(14, 30) },
+    { id: "static-plan-tomorrow", text: "Plan tomorrow", priority: "low", done: false, createdAt: taskTime(17, 0) },
+    { id: "static-evening-walk", text: "Evening walk", priority: "low", done: false, createdAt: taskTime(19, 0) },
+  ];
+}
 
 /** Shape of a brand-new, empty day. */
 function blankDay() {
   return {
     date: todayKey(),
-    tasks: [],
-    note: "",
-    mood: null,
+    tasks: defaultTasks(),
+    note: DEFAULT_NOTE,
+    mood: "happy",
   };
 }
 
@@ -47,9 +67,9 @@ export function loadDay() {
     return {
       day: {
         date: parsed.date,
-        tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
-        note: typeof parsed.note === "string" ? parsed.note : "",
-        mood: parsed.mood ?? null,
+        tasks: Array.isArray(parsed.tasks) && parsed.tasks.length > 0 ? parsed.tasks : defaultTasks(),
+        note: typeof parsed.note === "string" && parsed.note.length > 0 ? parsed.note : DEFAULT_NOTE,
+        mood: parsed.mood ?? "happy",
       },
       isNewDay: false,
     };

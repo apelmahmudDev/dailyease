@@ -6,11 +6,11 @@
  */
 
 export const MOODS = [
-  { id: "focused", emoji: "🧐", label: "Focused" },
-  { id: "happy", emoji: "😄", label: "Happy" },
-  { id: "tired", emoji: "😪", label: "Tired" },
-  { id: "calm", emoji: "😌", label: "Calm" },
-  { id: "stressed", emoji: "😰", label: "Stressed" },
+  { id: "stressed", emoji: "&#128543;", label: "Stressed" },
+  { id: "tired", emoji: "&#128533;", label: "Tired" },
+  { id: "calm", emoji: "&#128578;", label: "Calm" },
+  { id: "happy", emoji: "&#128522;", label: "Good" },
+  { id: "focused", emoji: "&#129321;", label: "Great" },
 ];
 
 export function getMood(id) {

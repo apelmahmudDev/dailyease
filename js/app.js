@@ -17,7 +17,7 @@ import {
 } from "./tasks.js";
 import { MOODS } from "./mood.js";
 import { calculatePercent, progressCaption } from "./progress.js";
-import { escapeHtml, formatFriendlyDate, debounce } from "./utils.js";
+import { escapeHtml, formatTime, debounce } from "./utils.js";
 
 // ---------------------------------------------------------------------------
 // State
@@ -40,6 +40,8 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 const el = {
   brandDate: document.getElementById("brandDate"),
+  brandWeekday: document.getElementById("brandWeekday"),
+  heroAddBtn: document.getElementById("heroAddBtn"),
 
   taskForm: document.getElementById("taskForm"),
   taskInput: document.getElementById("taskInput"),
@@ -48,6 +50,7 @@ const el = {
   taskList: document.getElementById("taskList"),
 
   moodGrid: document.getElementById("moodGrid"),
+  moodCaption: document.getElementById("moodCaption"),
 
   noteInput: document.getElementById("noteInput"),
   noteCount: document.getElementById("noteCount"),
@@ -75,6 +78,7 @@ const ICONS = {
   check: `<svg viewBox="0 0 13 13" fill="none"><path d="M1.5 6.7L4.8 10l7-8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   edit: `<svg viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5l3 3L7 16H4v-3l9.5-9.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
   trash: `<svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m1.5 0-.6 9.4a1.5 1.5 0 0 1-1.5 1.4H8.6a1.5 1.5 0 0 1-1.5-1.4L6.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  menu: `<svg viewBox="0 0 20 20" fill="none"><path d="M10 5.2h.01M10 10h.01M10 14.8h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
   empty: `<svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg>`,
 };
 
@@ -96,7 +100,15 @@ function persistWithFeedback(label = "Saved") {
 // ---------------------------------------------------------------------------
 
 function renderDate() {
-  el.brandDate.textContent = `${formatFriendlyDate()}`;
+  const today = new Date();
+  el.brandDate.textContent = today.toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+  el.brandWeekday.textContent = today.toLocaleDateString(undefined, {
+    weekday: "long",
+  });
 }
 
 function renderTasks() {
@@ -141,14 +153,13 @@ function taskRowMarkup(task) {
          maxlength="140"
          value="${escapeHtml(task.text)}"
        />`
-    : `<p class="task-text">${escapeHtml(task.text)}</p>`;
+    : `<p class="task-text">${escapeHtml(task.text)}<span class="task-time">${formatTime(task.createdAt)}</span></p>`;
 
   const actions = isEditing
     ? `<button type="button" class="btn btn-primary" data-action="save-edit" style="padding:0.4rem 0.8rem;">Save</button>
        <button type="button" class="btn btn-outline" data-action="cancel-edit" style="padding:0.4rem 0.8rem;">Cancel</button>`
     : `<span class="priority-tag" data-priority="${task.priority}">${capitalize(task.priority)}</span>
-       <button type="button" class="btn-icon task-edit-btn" data-action="edit" aria-label="Edit task">${ICONS.edit}</button>
-       <button type="button" class="btn-icon task-delete-btn" data-action="delete" aria-label="Delete task">${ICONS.trash}</button>`;
+       <button type="button" class="btn-icon task-menu-btn" aria-label="Task options">${ICONS.menu}</button>`;
 
   return `
     <li class="task-row ${task.done ? "is-done" : ""}" data-id="${task.id}">
@@ -173,7 +184,7 @@ function renderProgress(tasks) {
   el.ringPercent.textContent = `${percent}%`;
   el.progressMessage.textContent = progressCaption(tasks, percent);
   el.progressBarFill.style.width = `${percent}%`;
-  el.progressStat.textContent = `Completed ${done} of ${total} task${total === 1 ? "" : "s"}`;
+  el.progressStat.textContent = `${done} of ${total} task${total === 1 ? "" : "s"} completed`;
 
   const offset = RING_CIRCUMFERENCE * (1 - percent / 100);
   el.ringFill.style.strokeDasharray = `${RING_CIRCUMFERENCE}`;
@@ -188,6 +199,7 @@ function renderSummary(tasks) {
 }
 
 function renderMood() {
+  const selectedMood = MOODS.find((mood) => mood.id === state.day.mood);
   el.moodGrid.innerHTML = MOODS.map((mood) => {
     const pressed = state.day.mood === mood.id;
     return `
@@ -201,11 +213,12 @@ function renderMood() {
         <span class="mood-name">${mood.label}</span>
       </button>`;
   }).join("");
+  el.moodCaption.textContent = selectedMood?.label ?? "How are you feeling today?";
 }
 
 function renderNote() {
   el.noteInput.value = state.day.note;
-  el.noteCount.textContent = `${state.day.note.length} / 500`;
+  el.noteCount.textContent = `${state.day.note.length}/200`;
 }
 
 function renderAll() {
@@ -243,6 +256,10 @@ el.taskForm.addEventListener("submit", (e) => {
   el.taskInput.value = "";
   renderTasks();
   persist();
+  el.taskInput.focus();
+});
+
+el.heroAddBtn.addEventListener("click", () => {
   el.taskInput.focus();
 });
 
@@ -337,7 +354,7 @@ const persistNoteDebounced = debounce(() => persist(), 400);
 
 el.noteInput.addEventListener("input", () => {
   state.day.note = el.noteInput.value;
-  el.noteCount.textContent = `${state.day.note.length} / 500`;
+  el.noteCount.textContent = `${state.day.note.length}/200`;
   persistNoteDebounced();
 });
 

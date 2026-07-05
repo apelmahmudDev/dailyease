@@ -27,7 +27,7 @@ h1, h2, h3 {
   margin: 0;
   color: var(--ink-900);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 p {
@@ -55,7 +55,7 @@ input, textarea, select {
 }
 
 a {
-  color: var(--blue-600);
+  color: var(--teal-600);
 }
 
 svg {
@@ -64,13 +64,13 @@ svg {
 
 /* Visible, deliberate focus states everywhere */
 :focus-visible {
-  outline: 2px solid var(--blue-600);
+  outline: 2px solid var(--teal-600);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 ::selection {
-  background: var(--blue-100);
+  background: var(--teal-100);
   color: var(--ink-900);
 }
 
