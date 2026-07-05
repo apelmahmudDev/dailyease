@@ -1,27 +1,196 @@
 /**
- * app.js
- * Entry point. Owns the in-memory state for "today", renders it to the
- * DOM, and wires up every interaction. Domain logic lives in the other
- * modules — this file is glue, not rules.
+ * DailyEase standalone runtime.
+ * Kept dependency-free so index.html works when opened directly from disk.
  */
 
-import { loadDay, saveDay, resetDay } from "./storage.js";
-import {
-  createTask,
-  toggleTask,
-  removeTask,
-  editTaskText,
-  sortForDisplay,
-  filterByStatus,
-  taskCounts,
-} from "./tasks.js";
-import { MOODS } from "./mood.js";
-import { calculatePercent, progressCaption } from "./progress.js";
-import { escapeHtml, formatTime, debounce } from "./utils.js";
+const STORAGE_KEY = "dailyease:day:v1";
+const DEFAULT_NOTE = "Focus on progress,\nnot perfection.\nSmall steps every day\nlead to big changes.";
+const PRIORITIES = ["low", "medium", "high"];
+const MOODS = [
+  { id: "stressed", emoji: "&#128543;", label: "Stressed" },
+  { id: "tired", emoji: "&#128533;", label: "Tired" },
+  { id: "calm", emoji: "&#128578;", label: "Calm" },
+  { id: "happy", emoji: "&#128522;", label: "Good" },
+  { id: "focused", emoji: "&#129321;", label: "Great" },
+];
 
-// ---------------------------------------------------------------------------
-// State
-// ---------------------------------------------------------------------------
+const RING_RADIUS = 62;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+function generateId() {
+  return `t_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function todayKey() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function taskTime(hours, minutes) {
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  return date.getTime();
+}
+
+function defaultTasks() {
+  return [
+    { id: "static-morning-workout", text: "Morning workout", priority: "low", done: true, createdAt: taskTime(7, 0) },
+    { id: "static-read-book", text: "Read 15 pages of a book", priority: "medium", done: true, createdAt: taskTime(8, 30) },
+    { id: "static-project-proposal", text: "Finish project proposal", priority: "high", done: false, createdAt: taskTime(10, 0) },
+    { id: "static-team-meeting", text: "Team meeting", priority: "medium", done: false, createdAt: taskTime(11, 30) },
+    { id: "static-lunch-break", text: "Lunch break", priority: "low", done: false, createdAt: taskTime(13, 0) },
+    { id: "static-client-call", text: "Client call", priority: "high", done: false, createdAt: taskTime(14, 30) },
+    { id: "static-plan-tomorrow", text: "Plan tomorrow", priority: "low", done: false, createdAt: taskTime(17, 0) },
+    { id: "static-evening-walk", text: "Evening walk", priority: "low", done: false, createdAt: taskTime(19, 0) },
+  ];
+}
+
+function blankDay() {
+  return {
+    date: todayKey(),
+    tasks: defaultTasks(),
+    note: DEFAULT_NOTE,
+    mood: "happy",
+  };
+}
+
+function loadDay() {
+  let raw;
+  try {
+    raw = localStorage.getItem(STORAGE_KEY);
+  } catch (err) {
+    console.warn("DailyEase: localStorage unavailable", err);
+    return { day: blankDay(), isNewDay: true, storageBlocked: true };
+  }
+
+  if (!raw) return { day: blankDay(), isNewDay: true, storageBlocked: false };
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.date !== todayKey()) {
+      return { day: blankDay(), isNewDay: true, storageBlocked: false };
+    }
+    return {
+      day: {
+        date: parsed.date,
+        tasks: Array.isArray(parsed.tasks) && parsed.tasks.length > 0 ? parsed.tasks : defaultTasks(),
+        note: typeof parsed.note === "string" && parsed.note.length > 0 ? parsed.note : DEFAULT_NOTE,
+        mood: parsed.mood ?? "happy",
+      },
+      isNewDay: false,
+      storageBlocked: false,
+    };
+  } catch (err) {
+    console.warn("DailyEase: corrupted save, starting fresh", err);
+    return { day: blankDay(), isNewDay: true, storageBlocked: false };
+  }
+}
+
+function saveDay(day) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(day));
+    return true;
+  } catch (err) {
+    console.warn("DailyEase: could not save", err);
+    return false;
+  }
+}
+
+function resetDay() {
+  const fresh = blankDay();
+  saveDay(fresh);
+  return fresh;
+}
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value;
+  return div.innerHTML;
+}
+
+function formatTime(input) {
+  const date = input instanceof Date ? input : new Date(input);
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function debounce(fn, wait = 300) {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), wait);
+  };
+}
+
+function createTask(text, priority = "medium", details = {}) {
+  const trimmed = text.trim();
+  if (!trimmed) throw new Error("Task text cannot be empty");
+  const safePriority = PRIORITIES.includes(priority) ? priority : "medium";
+  return {
+    id: generateId(),
+    text: trimmed,
+    priority: safePriority,
+    done: false,
+    createdAt: details.createdAt ?? Date.now(),
+    description: details.description ?? "",
+    category: details.category ?? "",
+    reminder: details.reminder ?? "",
+    tag: details.tag ?? "",
+  };
+}
+
+function toggleTask(tasks, id) {
+  return tasks.map((task) =>
+    task.id === id ? { ...task, done: !task.done } : task
+  );
+}
+
+function removeTask(tasks, id) {
+  return tasks.filter((task) => task.id !== id);
+}
+
+function editTaskText(tasks, id, newText) {
+  const trimmed = newText.trim();
+  if (!trimmed) return tasks;
+  return tasks.map((task) =>
+    task.id === id ? { ...task, text: trimmed } : task
+  );
+}
+
+function filterByStatus(tasks, status) {
+  if (status === "active") return tasks.filter((task) => !task.done);
+  if (status === "completed") return tasks.filter((task) => task.done);
+  return tasks;
+}
+
+function sortForDisplay(tasks) {
+  return [...tasks];
+}
+
+function taskCounts(tasks) {
+  const total = tasks.length;
+  const done = tasks.filter((task) => task.done).length;
+  return { total, done, remaining: total - done };
+}
+
+function calculatePercent(tasks) {
+  if (tasks.length === 0) return 0;
+  return Math.round((tasks.filter((task) => task.done).length / tasks.length) * 100);
+}
+
+function progressCaption(tasks, percent) {
+  if (tasks.length === 0) return "Add a task below to plan your day.";
+  if (percent === 100) return "All done! Great job today.";
+  if (percent === 0) return "Nothing checked off yet - let's begin.";
+  if (percent >= 70) return "Great progress! Keep going and finish strong.";
+  if (percent >= 30) return "Good momentum - keep it up.";
+  return "Just getting started - you've got this.";
+}
 
 const { day, isNewDay, storageBlocked } = loadDay();
 const state = {
@@ -31,23 +200,21 @@ const state = {
   editingId: null,
 };
 
-const RING_RADIUS = 62;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
-// ---------------------------------------------------------------------------
-// DOM references
-// ---------------------------------------------------------------------------
-
 const el = {
   brandDate: document.getElementById("brandDate"),
   brandWeekday: document.getElementById("brandWeekday"),
   heroAddBtn: document.getElementById("heroAddBtn"),
+
   taskDrawerOverlay: document.getElementById("taskDrawerOverlay"),
   drawerCloseBtn: document.getElementById("drawerCloseBtn"),
   drawerCancelBtn: document.getElementById("drawerCancelBtn"),
   drawerTaskForm: document.getElementById("drawerTaskForm"),
   drawerTaskTitle: document.getElementById("drawerTaskTitle"),
   drawerTaskDesc: document.getElementById("drawerTaskDesc"),
+  drawerTaskTime: document.getElementById("drawerTaskTime"),
+  drawerTaskCategory: document.getElementById("drawerTaskCategory"),
+  drawerTaskReminder: document.getElementById("drawerTaskReminder"),
+  drawerTaskTag: document.getElementById("drawerTaskTag"),
   drawerTitleCount: document.getElementById("drawerTitleCount"),
   drawerDescCount: document.getElementById("drawerDescCount"),
 
@@ -84,15 +251,9 @@ const el = {
 
 const ICONS = {
   check: `<svg viewBox="0 0 13 13" fill="none"><path d="M1.5 6.7L4.8 10l7-8" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  edit: `<svg viewBox="0 0 20 20" fill="none"><path d="M13.5 3.5l3 3L7 16H4v-3l9.5-9.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>`,
-  trash: `<svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5A1.5 1.5 0 0 1 9.5 3h1A1.5 1.5 0 0 1 12 4.5V6m1.5 0-.6 9.4a1.5 1.5 0 0 1-1.5 1.4H8.6a1.5 1.5 0 0 1-1.5-1.4L6.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  menu: `<svg viewBox="0 0 20 20" fill="none"><path d="M10 5.2h.01M10 10h.01M10 14.8h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
   empty: `<svg viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  menu: `<svg viewBox="0 0 20 20" fill="none"><path d="M10 5.2h.01M10 10h.01M10 14.8h.01" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>`,
 };
-
-// ---------------------------------------------------------------------------
-// Persistence
-// ---------------------------------------------------------------------------
 
 function persist() {
   saveDay(state.day);
@@ -102,10 +263,6 @@ function persistWithFeedback(label = "Saved") {
   persist();
   showToast(label);
 }
-
-// ---------------------------------------------------------------------------
-// Rendering
-// ---------------------------------------------------------------------------
 
 function renderDate() {
   const today = new Date();
@@ -152,15 +309,8 @@ function emptyStateMarkup(title, subtitle) {
 
 function taskRowMarkup(task) {
   const isEditing = state.editingId === task.id;
-
   const body = isEditing
-    ? `<input
-         class="task-edit-input"
-         id="editInput-${task.id}"
-         type="text"
-         maxlength="140"
-         value="${escapeHtml(task.text)}"
-       />`
+    ? `<input class="task-edit-input" id="editInput-${task.id}" type="text" maxlength="140" value="${escapeHtml(task.text)}" />`
     : `<p class="task-text">${escapeHtml(task.text)}<span class="task-time">${formatTime(task.createdAt)}</span></p>`;
 
   const actions = isEditing
@@ -171,9 +321,7 @@ function taskRowMarkup(task) {
 
   return `
     <li class="task-row ${task.done ? "is-done" : ""}" data-id="${task.id}">
-      <button type="button" class="task-check" aria-pressed="${task.done}" aria-label="${
-        task.done ? "Mark task not done" : "Mark task done"
-      }" data-action="toggle">
+      <button type="button" class="task-check" aria-pressed="${task.done}" aria-label="${task.done ? "Mark task not done" : "Mark task done"}" data-action="toggle">
         ${ICONS.check}
       </button>
       <div class="task-body">${body}</div>
@@ -211,12 +359,7 @@ function renderMood() {
   el.moodGrid.innerHTML = MOODS.map((mood) => {
     const pressed = state.day.mood === mood.id;
     return `
-      <button
-        type="button"
-        class="mood-btn"
-        data-mood="${mood.id}"
-        aria-pressed="${pressed}"
-      >
+      <button type="button" class="mood-btn" data-mood="${mood.id}" aria-pressed="${pressed}">
         <span class="mood-emoji" aria-hidden="true">${mood.emoji}</span>
         <span class="mood-name">${mood.label}</span>
       </button>`;
@@ -236,10 +379,6 @@ function renderAll() {
   renderNote();
 }
 
-// ---------------------------------------------------------------------------
-// Toast
-// ---------------------------------------------------------------------------
-
 let toastTimeout = null;
 function showToast(message) {
   el.toast.textContent = message;
@@ -247,25 +386,6 @@ function showToast(message) {
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => el.toast.classList.remove("is-visible"), 2000);
 }
-
-// ---------------------------------------------------------------------------
-// Task interactions
-// ---------------------------------------------------------------------------
-
-el.taskForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const value = el.taskInput.value;
-  if (!value.trim()) {
-    el.taskInput.focus();
-    return;
-  }
-  const task = createTask(value, el.prioritySelect.value);
-  state.day.tasks.push(task);
-  el.taskInput.value = "";
-  renderTasks();
-  persist();
-  el.taskInput.focus();
-});
 
 function updateDrawerCounts() {
   el.drawerTitleCount.textContent = `${el.drawerTaskTitle.value.length}/100`;
@@ -282,10 +402,29 @@ function openTaskDrawer() {
 function closeTaskDrawer() {
   el.taskDrawerOverlay.classList.remove("is-open");
   el.taskDrawerOverlay.setAttribute("aria-hidden", "true");
+  el.heroAddBtn.focus();
 }
 
-el.heroAddBtn.addEventListener("click", openTaskDrawer);
+function timestampFromTime(value) {
+  if (!value) return Date.now();
+  const [hours, minutes] = value.split(":").map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return Date.now();
+  return taskTime(hours, minutes);
+}
 
+el.taskForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (!el.taskInput.value.trim()) {
+    el.taskInput.focus();
+    return;
+  }
+  state.day.tasks.push(createTask(el.taskInput.value, el.prioritySelect.value));
+  el.taskInput.value = "";
+  renderTasks();
+  persist();
+});
+
+el.heroAddBtn.addEventListener("click", openTaskDrawer);
 el.drawerCloseBtn.addEventListener("click", closeTaskDrawer);
 el.drawerCancelBtn.addEventListener("click", closeTaskDrawer);
 
@@ -303,9 +442,19 @@ el.drawerTaskForm.addEventListener("submit", (e) => {
     return;
   }
 
-  const priority = new FormData(el.drawerTaskForm).get("drawerPriority") ?? "medium";
-  state.day.tasks.push(createTask(el.drawerTaskTitle.value, priority));
+  const form = new FormData(el.drawerTaskForm);
+  const priority = form.get("drawerPriority") ?? "medium";
+  const task = createTask(el.drawerTaskTitle.value, priority, {
+    description: el.drawerTaskDesc.value.trim(),
+    createdAt: timestampFromTime(el.drawerTaskTime.value),
+    category: el.drawerTaskCategory.value,
+    reminder: el.drawerTaskReminder.value,
+    tag: el.drawerTaskTag.value.trim(),
+  });
+
+  state.day.tasks.push(task);
   el.drawerTaskForm.reset();
+  el.drawerTaskForm.querySelector('[name="drawerPriority"][value="medium"]').checked = true;
   updateDrawerCounts();
   closeTaskDrawer();
   renderTasks();
@@ -355,9 +504,7 @@ el.taskList.addEventListener("click", (e) => {
 
   if (action === "save-edit") {
     const input = document.getElementById(`editInput-${id}`);
-    if (input) {
-      state.day.tasks = editTaskText(state.day.tasks, id, input.value);
-    }
+    if (input) state.day.tasks = editTaskText(state.day.tasks, id, input.value);
     state.editingId = null;
     renderTasks();
     persist();
@@ -383,10 +530,6 @@ el.taskList.addEventListener("keydown", (e) => {
   }
 });
 
-// ---------------------------------------------------------------------------
-// Mood interactions
-// ---------------------------------------------------------------------------
-
 el.moodGrid.addEventListener("click", (e) => {
   const btn = e.target.closest(".mood-btn");
   if (!btn) return;
@@ -396,29 +539,16 @@ el.moodGrid.addEventListener("click", (e) => {
   persist();
 });
 
-// ---------------------------------------------------------------------------
-// Note interactions
-// ---------------------------------------------------------------------------
-
 const persistNoteDebounced = debounce(() => persist(), 400);
-
 el.noteInput.addEventListener("input", () => {
   state.day.note = el.noteInput.value;
   el.noteCount.textContent = `${state.day.note.length}/200`;
   persistNoteDebounced();
 });
 
-// ---------------------------------------------------------------------------
-// Save button
-// ---------------------------------------------------------------------------
-
 el.saveBtn.addEventListener("click", () => {
   persistWithFeedback("Day saved.");
 });
-
-// ---------------------------------------------------------------------------
-// Reset flow
-// ---------------------------------------------------------------------------
 
 function openResetDialog() {
   el.resetOverlay.classList.add("is-open");
@@ -455,14 +585,12 @@ el.confirmReset.addEventListener("click", () => {
   showToast("Fresh day started.");
 });
 
-// ---------------------------------------------------------------------------
-// Init
-// ---------------------------------------------------------------------------
-
 renderAll();
+persist();
+updateDrawerCounts();
 
 if (storageBlocked) {
-  showToast("Storage unavailable — changes won't be saved.");
-} else if (isNewDay && state.day.tasks.length === 0) {
-  showToast("New day, clean page.");
+  showToast("Storage unavailable - changes won't be saved.");
+} else if (isNewDay) {
+  showToast("New day, ready to plan.");
 }

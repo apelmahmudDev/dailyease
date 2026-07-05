@@ -244,11 +244,11 @@
 
         <label class="drawer-field">
           <span>Time <em>(Optional)</em></span>
-          <button class="drawer-select" type="button">
+          <span class="drawer-select drawer-input-row">
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 6.5V10l2.4 1.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            Select time
+            <input id="drawerTaskTime" type="time" aria-label="Select time" />
             <svg class="select-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </span>
         </label>
 
         <fieldset class="drawer-field priority-field">
@@ -271,27 +271,38 @@
 
         <label class="drawer-field">
           <span>Category <em>(Optional)</em></span>
-          <button class="drawer-select" type="button">
+          <span class="drawer-select drawer-input-row">
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4" y="4" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="11.5" y="4" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="4" y="11.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="11.5" y="11.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
-            Select category
+            <select id="drawerTaskCategory" aria-label="Select category">
+              <option value="">Select category</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+              <option value="Health">Health</option>
+              <option value="Learning">Learning</option>
+            </select>
             <svg class="select-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </span>
         </label>
 
         <label class="drawer-field">
           <span>Remind me <em>(Optional)</em></span>
-          <button class="drawer-select" type="button">
+          <span class="drawer-select drawer-input-row">
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5.5 14.5h9M7 14.5V9a3 3 0 0 1 6 0v5.5M8.5 16.5a1.7 1.7 0 0 0 3 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            No reminder
+            <select id="drawerTaskReminder" aria-label="Select reminder">
+              <option value="">No reminder</option>
+              <option value="At task time">At task time</option>
+              <option value="10 minutes before">10 minutes before</option>
+              <option value="30 minutes before">30 minutes before</option>
+            </select>
             <svg class="select-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </span>
         </label>
 
-        <button class="tag-add" type="button">
+        <label class="tag-add">
           <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 5.5v5.1c0 .4.2.8.5 1.1l5 5c.6.6 1.5.6 2.1 0l5.6-5.6c.6-.6.6-1.5 0-2.1l-5-5c-.3-.3-.7-.5-1.1-.5H5A1.5 1.5 0 0 0 3.5 5.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M7.2 7.2h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-          Add a tag <span>(Optional)</span>
+          <input id="drawerTaskTag" type="text" maxlength="24" placeholder="Add a tag (Optional)" aria-label="Add a tag" />
           <svg class="tag-plus" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-        </button>
+        </label>
 
         <div class="drawer-actions">
           <button class="btn btn-primary drawer-save" type="submit">
@@ -306,6 +317,6 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="./js/app.js"></script>
+  <script src="./js/app.js"></script>
 </body>
 </html>

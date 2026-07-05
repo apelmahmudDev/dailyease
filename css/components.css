@@ -1034,6 +1034,31 @@ main {
   text-align: left;
 }
 
+.drawer-input-row input,
+.drawer-input-row select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink-700);
+  font: inherit;
+  font-weight: 700;
+}
+
+.drawer-input-row select {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.drawer-input-row input:invalid {
+  color: #76879A;
+}
+
+.drawer-input-row input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
 .drawer-select svg {
   width: 24px;
   height: 24px;
@@ -1105,8 +1130,20 @@ main {
   text-align: left;
 }
 
-.tag-add span {
-  font-weight: 700;
+.tag-add input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink-700);
+  font: inherit;
+  font-weight: 800;
+}
+
+.tag-add input::placeholder {
+  color: #76879A;
+  opacity: 1;
 }
 
 .tag-add svg {
