@@ -279,7 +279,7 @@ main {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
   gap: var(--sp-5);
-  align-items: start;
+  align-items: stretch;
   margin-top: 1.75rem;
 }
 
@@ -472,13 +472,44 @@ main {
 /* ---------------------------------------------------------------------- */
 
 .tasks-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
   padding-bottom: 0;
 }
 
 .task-list {
   display: grid;
   gap: var(--sp-4);
+  align-content: start;
+  flex: 1;
+  max-height: 640px;
   margin-top: 1.7rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.35rem;
+  scrollbar-color: rgba(7, 139, 128, 0.45) transparent;
+  scrollbar-width: thin;
+}
+
+.task-list.is-empty {
+  min-height: 430px;
+  align-content: center;
+  overflow: hidden;
+  padding-right: 0;
+}
+
+.task-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.task-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.task-list::-webkit-scrollbar-thumb {
+  background: rgba(7, 139, 128, 0.34);
+  border-radius: var(--radius-pill);
 }
 
 .task-row {

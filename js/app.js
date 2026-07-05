@@ -286,6 +286,7 @@ function renderTasks() {
   closeTaskActionMenu();
   const tasks = state.day.tasks;
   const visible = sortForDisplay(filterByStatus(tasks, state.filter));
+  el.taskList.classList.toggle("is-empty", visible.length === 0);
 
   if (tasks.length === 0) {
     el.taskList.innerHTML = emptyStateMarkup(

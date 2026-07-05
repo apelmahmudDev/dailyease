@@ -13,6 +13,18 @@
     grid-template-columns: 1fr;
   }
 
+  .board {
+    align-items: start;
+  }
+
+  .task-list.is-empty {
+    min-height: 220px;
+  }
+
+  .task-list {
+    max-height: 60vh;
+  }
+
   .hero-panel {
     padding: 1.5rem;
   }
