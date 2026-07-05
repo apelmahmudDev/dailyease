@@ -880,28 +880,30 @@ main {
   position: fixed;
   inset: 0;
   z-index: 180;
+  background: rgba(16, 43, 59, 0);
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--dur-med) var(--ease-out);
+  transition: opacity var(--dur-med) var(--ease-out), background var(--dur-med) var(--ease-out);
 }
 
 .task-drawer-overlay.is-open {
+  background: rgba(16, 43, 59, 0.08);
   opacity: 1;
   pointer-events: auto;
 }
 
 .task-drawer {
-  position: absolute;
-  top: 1.75rem;
-  right: max(1.5rem, calc((100vw - var(--max-width)) / 2));
-  bottom: 1.75rem;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
   width: min(610px, calc(100vw - 2rem));
   overflow-y: auto;
-  border: 1px solid var(--border);
-  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+  border-left: 1px solid var(--border);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: -18px 0 46px rgba(16, 43, 59, 0.08);
-  transform: translateX(32px);
+  box-shadow: -22px 0 54px rgba(16, 43, 59, 0.13);
+  transform: translateX(100%);
   transition: transform var(--dur-med) var(--ease-out);
 }
 
