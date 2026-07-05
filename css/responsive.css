@@ -46,7 +46,7 @@
 	.topbar {
 		align-items: flex-start;
 		flex-direction: column;
-		padding: 1.35rem;
+		padding: 1.2rem;
 	}
 
 	.topbar-side {
@@ -146,18 +146,17 @@
 }
 
 @media (max-width: 420px) {
-	.brand-mark,
-	.theme-button {
-		width: 50px;
-		height: 50px;
+	.brand-mark {
+		width: 44px;
+		height: 44px;
 	}
 
 	.brand-text h1 {
-		font-size: 1.35rem;
+		font-size: 1.15rem;
 	}
 
 	.date-block span {
-		font-size: var(--fs-sm);
+		font-size: var(--fs-xs);
 	}
 
 	.task-row {
