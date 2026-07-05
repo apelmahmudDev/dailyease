@@ -139,8 +139,12 @@
   }
 
   .task-drawer {
-    width: 100vw;
-    border-radius: 0;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    width: auto;
+    border-radius: var(--radius-lg);
   }
 }
 
