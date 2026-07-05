@@ -1085,8 +1085,7 @@ main {
 
 .drawer-textarea-wrap input::placeholder,
 .drawer-textarea-wrap textarea::placeholder,
-.drawer-select,
-.tag-add {
+.drawer-select {
   color: #76879A;
 }
 
@@ -1207,46 +1206,6 @@ main {
 .priority-options i[data-priority="low"] { background: #0F967F; }
 .priority-options i[data-priority="medium"] { background: #FFC000; }
 .priority-options i[data-priority="high"] { background: #F43C4B; }
-
-.tag-add {
-  min-height: 70px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--sp-3);
-  padding: 0 1.25rem;
-  border: 1px dashed #BFD0D8;
-  border-radius: 10px;
-  background: #fff;
-  font-size: var(--fs-base);
-  font-weight: 800;
-  text-align: left;
-}
-
-.tag-add input {
-  width: 100%;
-  min-width: 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: var(--ink-700);
-  font: inherit;
-  font-weight: 800;
-}
-
-.tag-add input::placeholder {
-  color: #76879A;
-  opacity: 1;
-}
-
-.tag-add svg {
-  width: 24px;
-  height: 24px;
-}
-
-.tag-add .tag-plus {
-  justify-self: end;
-}
 
 .drawer-actions {
   display: grid;

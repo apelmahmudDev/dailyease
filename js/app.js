@@ -143,9 +143,7 @@ function createTask(text, priority = "medium", details = {}) {
     done: false,
     createdAt: details.createdAt ?? Date.now(),
     description: details.description ?? "",
-    category: details.category ?? "",
     reminder: details.reminder ?? "",
-    tag: details.tag ?? "",
   };
 }
 
@@ -220,9 +218,7 @@ const el = {
   drawerTaskTitle: document.getElementById("drawerTaskTitle"),
   drawerTaskDesc: document.getElementById("drawerTaskDesc"),
   drawerTaskTime: document.getElementById("drawerTaskTime"),
-  drawerTaskCategory: document.getElementById("drawerTaskCategory"),
   drawerTaskReminder: document.getElementById("drawerTaskReminder"),
-  drawerTaskTag: document.getElementById("drawerTaskTag"),
   drawerTitleCount: document.getElementById("drawerTitleCount"),
   drawerDescCount: document.getElementById("drawerDescCount"),
   drawerTitle: document.getElementById("drawerTitle"),
@@ -434,9 +430,7 @@ function openTaskDrawer(task = null) {
     el.drawerTaskTitle.value = task.text ?? "";
     el.drawerTaskDesc.value = task.description ?? "";
     el.drawerTaskTime.value = timeValueFromTimestamp(task.createdAt);
-    el.drawerTaskCategory.value = task.category ?? "";
     el.drawerTaskReminder.value = task.reminder ?? "";
-    el.drawerTaskTag.value = task.tag ?? "";
     setDrawerPriority(task.priority ?? "medium");
   } else {
     state.drawerMode = "create";
@@ -501,9 +495,7 @@ el.drawerTaskForm.addEventListener("submit", (e) => {
   const taskData = {
     description: el.drawerTaskDesc.value.trim(),
     createdAt: timestampFromTime(el.drawerTaskTime.value),
-    category: el.drawerTaskCategory.value,
     reminder: el.drawerTaskReminder.value,
-    tag: el.drawerTaskTag.value.trim(),
   };
 
   if (state.drawerMode === "edit" && state.drawerTaskId) {
