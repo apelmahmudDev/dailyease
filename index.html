@@ -78,36 +78,10 @@
                 </span>
                 <h2 id="tasksHeading">Today's Tasks</h2>
               </div>
-              <select class="pill-select filter-select" id="filterSelect" aria-label="Filter tasks">
-                <option value="all">All</option>
-                <option value="active">Active</option>
-                <option value="completed">Completed</option>
-              </select>
             </div>
-
-            <form class="composer" id="taskForm" novalidate>
-              <label for="taskInput" class="visually-hidden">Add a task for today</label>
-              <div class="composer-field">
-                <input class="composer-input" id="taskInput" name="task" type="text" placeholder="What needs to be done?" maxlength="140" autocomplete="off" />
-              </div>
-              <label for="prioritySelect" class="visually-hidden">Priority</label>
-              <select class="pill-select priority-pill-select" id="prioritySelect">
-                <option value="low">Low</option>
-                <option value="medium" selected>Medium</option>
-                <option value="high">High</option>
-              </select>
-              <button type="submit" class="btn btn-primary compact-add">
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                Add
-              </button>
-            </form>
 
             <ul class="task-list" id="taskList" aria-live="polite"></ul>
 
-            <div class="task-helper">
-              <span aria-hidden="true">---</span>
-              Drag to reorder tasks
-            </div>
             <div class="priority-legend" aria-label="Priority legend">
               <span><i data-priority="high"></i> High Priority</span>
               <span><i data-priority="medium"></i> Medium Priority</span>
@@ -153,7 +127,7 @@
               </div>
               <label for="noteInput" class="visually-hidden">Daily note</label>
               <textarea class="note-textarea" id="noteInput" maxlength="200" placeholder="Focus on progress, not perfection. Small steps every day lead to big changes."></textarea>
-              <div class="note-footer"><span class="note-count" id="noteCount">0 / 500</span></div>
+              <div class="note-footer"><span class="note-count" id="noteCount">0/200</span></div>
             </section>
 
             <section class="card mood-card" aria-labelledby="moodHeading">
@@ -183,9 +157,6 @@
                 Reset for a New Day
               </button>
               <p>This will clear all tasks, notes and mood for today.</p>
-              <div class="summary-data" aria-hidden="true">
-                <span id="statTotal">0</span><span id="statDone">0</span><span id="statPending">0</span>
-              </div>
             </section>
           </aside>
         </section>
@@ -299,6 +270,14 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="./js/constants.js"></script>
+  <script src="./js/utils.js"></script>
+  <script src="./js/icons.js"></script>
+  <script src="./js/progress.js"></script>
+  <script src="./js/tasks.js"></script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/render.js"></script>
+  <script src="./js/dom.js"></script>
   <script src="./js/app.js"></script>
 </body>
 </html>

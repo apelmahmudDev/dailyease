@@ -1,20 +1,4 @@
-/**
- * storage.js
- * Owns all reads/writes to localStorage. Nothing outside this file
- * should call localStorage directly — that keeps the storage schema
- * (and any future migration) in one place.
- */
-
-import { todayKey } from "./utils.js";
-
 const STORAGE_KEY = "dailyease:day:v1";
-const DEFAULT_NOTE = "Focus on progress,\nnot perfection.\nSmall steps every day\nlead to big changes.";
-
-function taskTime(hours, minutes) {
-  const date = new Date();
-  date.setHours(hours, minutes, 0, 0);
-  return date.getTime();
-}
 
 function defaultTasks() {
   return [
@@ -29,7 +13,6 @@ function defaultTasks() {
   ];
 }
 
-/** Shape of a brand-new, empty day. */
 function blankDay() {
   return {
     date: todayKey(),
@@ -39,14 +22,7 @@ function blankDay() {
   };
 }
 
-/**
- * Load the saved day from localStorage.
- * If the saved data belongs to a previous date, a fresh day is returned
- * instead — DailyEase is a "today" tool, so yesterday's checklist should
- * not silently carry over.
- * Returns { day, isNewDay } so the caller can react (e.g. show a toast).
- */
-export function loadDay() {
+function loadDay() {
   let raw;
   try {
     raw = localStorage.getItem(STORAGE_KEY);
@@ -55,15 +31,14 @@ export function loadDay() {
     return { day: blankDay(), isNewDay: true, storageBlocked: true };
   }
 
-  if (!raw) {
-    return { day: blankDay(), isNewDay: true };
-  }
+  if (!raw) return { day: blankDay(), isNewDay: true, storageBlocked: false };
 
   try {
     const parsed = JSON.parse(raw);
     if (!parsed || parsed.date !== todayKey()) {
-      return { day: blankDay(), isNewDay: true };
+      return { day: blankDay(), isNewDay: true, storageBlocked: false };
     }
+
     return {
       day: {
         date: parsed.date,
@@ -72,15 +47,15 @@ export function loadDay() {
         mood: parsed.mood ?? "happy",
       },
       isNewDay: false,
+      storageBlocked: false,
     };
   } catch (err) {
     console.warn("DailyEase: corrupted save, starting fresh", err);
-    return { day: blankDay(), isNewDay: true };
+    return { day: blankDay(), isNewDay: true, storageBlocked: false };
   }
 }
 
-/** Persist the given day object as-is. */
-export function saveDay(day) {
+function saveDay(day) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(day));
     return true;
@@ -90,8 +65,7 @@ export function saveDay(day) {
   }
 }
 
-/** Wipe today's data and return a fresh blank day. */
-export function resetDay() {
+function resetDay() {
   const fresh = {
     date: todayKey(),
     tasks: [],
