@@ -110,7 +110,8 @@
 		grid-template-columns: auto minmax(0, 1fr);
 	}
 
-	.quote-leaf {
+	.quote-leaf,
+	.quote-leaf-logo {
 		display: none;
 	}
 

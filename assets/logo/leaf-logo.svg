@@ -1,0 +1,30 @@
+<svg width="220" height="220" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Minimal mint leaf logo">
+  <defs>
+    <linearGradient id="stem" x1="57" y1="164" x2="160" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#39B99A"/>
+      <stop offset="1" stop-color="#68D7C1"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="94" y1="36" x2="180" y2="133" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A9EEE0"/>
+      <stop offset="1" stop-color="#77D6C5"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#2EA88F" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#softShadow)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M58 162 C88 142 111 118 130 76" stroke="url(#stem)" stroke-width="7"/>
+    <path d="M92 136 C111 130 126 123 142 109" stroke="url(#stem)" stroke-width="6"/>
+    <path d="M116 108 C134 98 150 85 165 63" stroke="url(#stem)" stroke-width="6"/>
+
+    <path d="M111 91 C90 70 96 38 109 22 C134 40 138 72 111 91Z" fill="url(#leaf)" opacity="0.84"/>
+    <path d="M109 81 C109 63 108 47 111 32" stroke="#42BFA8" stroke-width="3.5" opacity="0.45"/>
+
+    <path d="M165 63 C160 35 187 22 211 23 C210 52 190 72 165 63Z" fill="url(#leaf)" opacity="0.88"/>
+    <path d="M173 57 C186 47 198 36 206 27" stroke="#42BFA8" stroke-width="3.5" opacity="0.45"/>
+
+    <path d="M141 111 C160 84 194 88 214 105 C193 128 161 132 141 111Z" fill="url(#leaf)" opacity="0.78"/>
+    <path d="M153 110 C173 106 191 105 205 105" stroke="#42BFA8" stroke-width="3.5" opacity="0.42"/>
+  </g>
+</svg>
