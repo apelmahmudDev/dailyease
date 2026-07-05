@@ -198,6 +198,9 @@ const state = {
   selectedPriority: "medium",
   filter: "all",
   editingId: null,
+  drawerMode: "create",
+  drawerTaskId: null,
+  actionMenuTaskId: null,
 };
 
 const el = {
@@ -217,6 +220,9 @@ const el = {
   drawerTaskTag: document.getElementById("drawerTaskTag"),
   drawerTitleCount: document.getElementById("drawerTitleCount"),
   drawerDescCount: document.getElementById("drawerDescCount"),
+  drawerTitle: document.getElementById("drawerTitle"),
+  drawerSaveBtn: document.querySelector(".drawer-save"),
+  taskActionMenu: document.getElementById("taskActionMenu"),
 
   taskForm: document.getElementById("taskForm"),
   taskInput: document.getElementById("taskInput"),
@@ -277,6 +283,7 @@ function renderDate() {
 }
 
 function renderTasks() {
+  closeTaskActionMenu();
   const tasks = state.day.tasks;
   const visible = sortForDisplay(filterByStatus(tasks, state.filter));
 
@@ -317,7 +324,7 @@ function taskRowMarkup(task) {
     ? `<button type="button" class="btn btn-primary" data-action="save-edit" style="padding:0.4rem 0.8rem;">Save</button>
        <button type="button" class="btn btn-outline" data-action="cancel-edit" style="padding:0.4rem 0.8rem;">Cancel</button>`
     : `<span class="priority-tag" data-priority="${task.priority}">${capitalize(task.priority)}</span>
-       <button type="button" class="btn-icon task-menu-btn" aria-label="Task options">${ICONS.menu}</button>`;
+       <button type="button" class="btn-icon task-menu-btn" data-action="menu" aria-haspopup="menu" aria-expanded="false" aria-label="Task options">${ICONS.menu}</button>`;
 
   return `
     <li class="task-row ${task.done ? "is-done" : ""}" data-id="${task.id}">
@@ -392,7 +399,46 @@ function updateDrawerCounts() {
   el.drawerDescCount.textContent = `${el.drawerTaskDesc.value.length}/200`;
 }
 
-function openTaskDrawer() {
+function resetDrawerForm() {
+  el.drawerTaskForm.reset();
+  const medium = el.drawerTaskForm.querySelector('[name="drawerPriority"][value="medium"]');
+  if (medium) medium.checked = true;
+  updateDrawerCounts();
+}
+
+function setDrawerPriority(priority) {
+  const input = el.drawerTaskForm.querySelector(`[name="drawerPriority"][value="${priority}"]`);
+  if (input) input.checked = true;
+}
+
+function timeValueFromTimestamp(timestamp) {
+  if (!timestamp) return "";
+  const date = new Date(timestamp);
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+function openTaskDrawer(task = null) {
+  if (task) {
+    state.drawerMode = "edit";
+    state.drawerTaskId = task.id;
+    el.drawerTitle.textContent = "Edit Task";
+    el.drawerSaveBtn.lastChild.textContent = " Save Changes";
+    el.drawerTaskTitle.value = task.text ?? "";
+    el.drawerTaskDesc.value = task.description ?? "";
+    el.drawerTaskTime.value = timeValueFromTimestamp(task.createdAt);
+    el.drawerTaskCategory.value = task.category ?? "";
+    el.drawerTaskReminder.value = task.reminder ?? "";
+    el.drawerTaskTag.value = task.tag ?? "";
+    setDrawerPriority(task.priority ?? "medium");
+  } else {
+    state.drawerMode = "create";
+    state.drawerTaskId = null;
+    el.drawerTitle.textContent = "Add New Task";
+    el.drawerSaveBtn.lastChild.textContent = " Save Task";
+    resetDrawerForm();
+  }
   el.taskDrawerOverlay.classList.add("is-open");
   el.taskDrawerOverlay.setAttribute("aria-hidden", "false");
   updateDrawerCounts();
@@ -402,6 +448,8 @@ function openTaskDrawer() {
 function closeTaskDrawer() {
   el.taskDrawerOverlay.classList.remove("is-open");
   el.taskDrawerOverlay.setAttribute("aria-hidden", "true");
+  state.drawerMode = "create";
+  state.drawerTaskId = null;
   el.heroAddBtn.focus();
 }
 
@@ -424,7 +472,7 @@ el.taskForm.addEventListener("submit", (e) => {
   persist();
 });
 
-el.heroAddBtn.addEventListener("click", openTaskDrawer);
+el.heroAddBtn.addEventListener("click", () => openTaskDrawer());
 el.drawerCloseBtn.addEventListener("click", closeTaskDrawer);
 el.drawerCancelBtn.addEventListener("click", closeTaskDrawer);
 
@@ -444,22 +492,36 @@ el.drawerTaskForm.addEventListener("submit", (e) => {
 
   const form = new FormData(el.drawerTaskForm);
   const priority = form.get("drawerPriority") ?? "medium";
-  const task = createTask(el.drawerTaskTitle.value, priority, {
+  const taskData = {
     description: el.drawerTaskDesc.value.trim(),
     createdAt: timestampFromTime(el.drawerTaskTime.value),
     category: el.drawerTaskCategory.value,
     reminder: el.drawerTaskReminder.value,
     tag: el.drawerTaskTag.value.trim(),
-  });
+  };
 
-  state.day.tasks.push(task);
-  el.drawerTaskForm.reset();
-  el.drawerTaskForm.querySelector('[name="drawerPriority"][value="medium"]').checked = true;
+  if (state.drawerMode === "edit" && state.drawerTaskId) {
+    state.day.tasks = state.day.tasks.map((task) =>
+      task.id === state.drawerTaskId
+        ? {
+            ...task,
+            text: el.drawerTaskTitle.value.trim(),
+            priority,
+            ...taskData,
+          }
+        : task
+    );
+    showToast("Task updated.");
+  } else {
+    state.day.tasks.push(createTask(el.drawerTaskTitle.value, priority, taskData));
+    showToast("Task saved.");
+  }
+
+  resetDrawerForm();
   updateDrawerCounts();
   closeTaskDrawer();
   renderTasks();
   persist();
-  showToast("Task saved.");
 });
 
 el.filterSelect.addEventListener("change", () => {
@@ -479,6 +541,11 @@ el.taskList.addEventListener("click", (e) => {
     state.day.tasks = toggleTask(state.day.tasks, id);
     renderTasks();
     persist();
+  }
+
+  if (action === "menu") {
+    e.stopPropagation();
+    toggleTaskActionMenu(id, actionBtn);
   }
 
   if (action === "delete") {
@@ -509,6 +576,67 @@ el.taskList.addEventListener("click", (e) => {
     renderTasks();
     persist();
   }
+});
+
+function closeTaskActionMenu() {
+  if (!el.taskActionMenu) return;
+  el.taskActionMenu.hidden = true;
+  state.actionMenuTaskId = null;
+  document.querySelectorAll(".task-menu-btn[aria-expanded='true']").forEach((btn) => {
+    btn.setAttribute("aria-expanded", "false");
+  });
+}
+
+function toggleTaskActionMenu(taskId, anchor) {
+  if (!el.taskActionMenu) return;
+  if (!el.taskActionMenu.hidden && state.actionMenuTaskId === taskId) {
+    closeTaskActionMenu();
+    return;
+  }
+
+  state.actionMenuTaskId = taskId;
+  const rect = anchor.getBoundingClientRect();
+  const menuWidth = 160;
+  const left = Math.min(window.innerWidth - menuWidth - 12, rect.right - menuWidth);
+  const top = Math.min(window.innerHeight - 104, rect.bottom + 8);
+  el.taskActionMenu.style.left = `${Math.max(12, left)}px`;
+  el.taskActionMenu.style.top = `${Math.max(12, top)}px`;
+  el.taskActionMenu.hidden = false;
+  document.querySelectorAll(".task-menu-btn[aria-expanded='true']").forEach((btn) => {
+    btn.setAttribute("aria-expanded", "false");
+  });
+  anchor.setAttribute("aria-expanded", "true");
+}
+
+el.taskActionMenu.addEventListener("click", (e) => {
+  const button = e.target.closest("[data-menu-action]");
+  if (!button || !state.actionMenuTaskId) return;
+  const action = button.dataset.menuAction;
+  const taskId = state.actionMenuTaskId;
+  const task = state.day.tasks.find((item) => item.id === taskId);
+  closeTaskActionMenu();
+
+  if (action === "edit" && task) {
+    openTaskDrawer(task);
+  }
+
+  if (action === "delete") {
+    state.day.tasks = removeTask(state.day.tasks, taskId);
+    renderTasks();
+    persist();
+    showToast("Task deleted.");
+  }
+});
+
+document.addEventListener("click", (e) => {
+  if (
+    el.taskActionMenu.hidden ||
+    e.target.closest(".task-action-menu") ||
+    e.target.closest(".task-menu-btn")
+  ) {
+    return;
+  }
+  closeTaskActionMenu();
 });
 
 el.taskList.addEventListener("keydown", (e) => {
@@ -567,6 +695,9 @@ el.resetOverlay.addEventListener("click", (e) => {
 });
 
 document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !el.taskActionMenu.hidden) {
+    closeTaskActionMenu();
+  }
   if (e.key === "Escape" && el.resetOverlay.classList.contains("is-open")) {
     closeResetDialog();
   }
