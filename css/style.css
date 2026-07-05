@@ -1,0 +1,9 @@
+/* ==========================================================================
+   DailyEase — stylesheet entry point
+   Import order matters: tokens → base → components → responsive
+   ========================================================================== */
+
+@import url("./variables.css");
+@import url("./base.css");
+@import url("./components.css");
+@import url("./responsive.css");

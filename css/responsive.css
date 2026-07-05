@@ -1,0 +1,89 @@
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-4) var(--sp-4) 0;
+  }
+
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .topbar-mid {
+    order: 3;
+    width: 100%;
+  }
+
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .topbar-actions .btn {
+    flex: 1;
+  }
+
+  .progress-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-4);
+  }
+
+  .ring-figure {
+    align-self: center;
+  }
+
+  .card {
+    padding: var(--sp-4);
+  }
+
+  .composer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .priority-pill-select {
+    width: 100%;
+  }
+
+  .mood-grid {
+    gap: var(--sp-1);
+  }
+
+  .mood-btn {
+    padding: var(--sp-2) 0.15rem;
+  }
+
+  .task-row {
+    flex-wrap: wrap;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-footer {
+    padding: var(--sp-4);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+}
+
+@media (max-width: 380px) {
+  .ring-figure {
+    width: 120px;
+    height: 120px;
+  }
+
+  .ring-percent {
+    font-size: var(--fs-xl);
+  }
+}
