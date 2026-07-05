@@ -21,6 +21,17 @@
 		min-height: 220px;
 	}
 
+	.tasks-card {
+		height: auto;
+		min-height: 0;
+	}
+
+	.task-list {
+		flex: 0 0 auto;
+		overflow: visible;
+		padding-right: 0;
+	}
+
 	.hero-panel {
 		padding: 1.5rem;
 	}

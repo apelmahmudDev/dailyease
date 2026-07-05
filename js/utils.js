@@ -24,9 +24,10 @@ function escapeHtml(value) {
 
 function formatTime(input) {
   const date = input instanceof Date ? input : new Date(input);
-  return date.toLocaleTimeString(undefined, {
+  return date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
+    hour12: true,
   });
 }
 
