@@ -481,10 +481,10 @@ main {
 	align-content: start;
 	flex: 1 1 0;
 	min-height: 0;
-	margin-top: 1.7rem;
+	margin-top: 0.85rem;
 	overflow-y: auto;
 	overscroll-behavior: contain;
-	padding-right: 0.35rem;
+	padding: 0 0.35rem 1rem 0;
 	scrollbar-color: rgba(7, 139, 128, 0.45) transparent;
 	scrollbar-width: thin;
 }
