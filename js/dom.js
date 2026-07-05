@@ -2,6 +2,7 @@ function getElements() {
   return {
     brandDate: document.getElementById("brandDate"),
     brandWeekday: document.getElementById("brandWeekday"),
+    heroGreeting: document.getElementById("heroGreeting"),
     heroAddBtn: document.getElementById("heroAddBtn"),
 
     taskDrawerOverlay: document.getElementById("taskDrawerOverlay"),

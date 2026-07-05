@@ -10,6 +10,18 @@ function renderDate(el) {
   });
 }
 
+function greetingForHour(hour) {
+  if (hour < 5) return "Good night!";
+  if (hour < 12) return "Good morning!";
+  if (hour < 17) return "Good afternoon!";
+  if (hour < 21) return "Good evening!";
+  return "Good night!";
+}
+
+function renderGreeting(el) {
+  el.heroGreeting.textContent = greetingForHour(new Date().getHours());
+}
+
 function renderTasks(state, el, closeTaskActionMenu) {
   closeTaskActionMenu();
   const tasks = state.day.tasks;
@@ -56,6 +68,7 @@ function renderNote(state, el) {
 
 function renderAll(state, el, closeTaskActionMenu) {
   renderDate(el);
+  renderGreeting(el);
   renderTasks(state, el, closeTaskActionMenu);
   renderMood(state, el);
   renderNote(state, el);
