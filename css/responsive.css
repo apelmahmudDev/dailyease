@@ -25,6 +25,10 @@
 		padding: 1.5rem;
 	}
 
+	.hero-copy p {
+		white-space: normal;
+	}
+
 	.plant-illo {
 		display: none;
 	}
@@ -111,12 +115,12 @@
 	}
 
 	.drawer-head {
-		padding: 1.35rem;
+		padding: 1.2rem;
 	}
 
 	.drawer-form {
-		gap: 1.35rem;
-		padding: 1.35rem;
+		gap: 1.15rem;
+		padding: 1.2rem;
 	}
 
 	.priority-options {
@@ -126,8 +130,8 @@
 
 	.drawer-actions {
 		gap: var(--sp-3);
-		margin: auto -1.35rem -1.35rem;
-		padding: 1rem 1.35rem 1.25rem;
+		margin: auto -1.2rem -1.2rem;
+		padding: 0.85rem 1.2rem 1rem;
 	}
 
 	.task-drawer {
