@@ -505,7 +505,7 @@ main {
 	min-height: 0;
 	margin-top: 0.85rem;
 	overflow-y: auto;
-	overscroll-behavior: contain;
+	overscroll-behavior-y: auto;
 	padding: 0 0.35rem 1rem 0;
 	scrollbar-color: rgba(7, 139, 128, 0.45) transparent;
 	scrollbar-width: thin;
@@ -1140,6 +1140,7 @@ main {
 	border: 1px solid #d5e0e5;
 	border-radius: 10px;
 	background: #fff;
+	cursor: pointer;
 	font-size: var(--fs-base);
 	font-weight: 700;
 	text-align: left;
@@ -1160,6 +1161,7 @@ main {
 .drawer-input-row select {
 	appearance: none;
 	-webkit-appearance: none;
+	cursor: pointer;
 }
 
 .drawer-input-row input:invalid {
@@ -1189,6 +1191,7 @@ main {
 
 .priority-options label {
 	min-width: 0;
+	cursor: pointer;
 }
 
 .priority-options input {
@@ -1207,6 +1210,7 @@ main {
 	border-radius: 10px;
 	background: #fff;
 	color: var(--ink-700);
+	cursor: pointer;
 	font-size: var(--fs-base);
 	font-weight: 700;
 }
@@ -1357,6 +1361,21 @@ main {
 	color: var(--ink-500);
 }
 
+:root[data-theme="dark"] .drawer-input-row select {
+	color: var(--ink-900);
+	color-scheme: dark;
+}
+
+:root[data-theme="dark"] .drawer-input-row select option {
+	background: #202020;
+	color: var(--ink-900);
+}
+
+:root[data-theme="dark"] .drawer-input-row select option:checked {
+	background: #123f3a;
+	color: #eafffb;
+}
+
 :root[data-theme="dark"] .priority-legend {
 	background: #1c1c1c;
 	border-color: #333333;
@@ -1377,6 +1396,12 @@ main {
 
 :root[data-theme="dark"] .mood-btn:hover {
 	background: #363636;
+}
+
+:root[data-theme="dark"] .toast {
+	background: #2a2a2a;
+	border: 1px solid #3a3a3a;
+	color: var(--ink-900);
 }
 
 :root[data-theme="dark"] .ring-track {

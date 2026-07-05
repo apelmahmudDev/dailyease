@@ -44,7 +44,7 @@ function saveThemePreference(theme) {
   }
 }
 
-function setTheme(theme, silent = false) {
+function setTheme(theme) {
   const activeTheme = theme === "dark" ? "dark" : "light";
   const isDark = activeTheme === "dark";
 
@@ -52,8 +52,6 @@ function setTheme(theme, silent = false) {
   el.themeToggleBtn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
   el.themeToggleBtn.setAttribute("aria-pressed", String(isDark));
   el.themeToggleBtn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
-
-  if (!silent) showToast(isDark ? "Dark mode on." : "Light mode on.");
 }
 
 function toggleTheme() {
@@ -64,7 +62,7 @@ function toggleTheme() {
 }
 
 function initTheme() {
-  setTheme(loadThemePreference() === "dark" ? "dark" : "light", true);
+  setTheme(loadThemePreference() === "dark" ? "dark" : "light");
 }
 
 function updateDrawerCounts() {
