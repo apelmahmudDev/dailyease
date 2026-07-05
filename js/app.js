@@ -142,7 +142,6 @@ function createTask(text, priority = "medium", details = {}) {
     priority: safePriority,
     done: false,
     createdAt: details.createdAt ?? Date.now(),
-    description: details.description ?? "",
     reminder: details.reminder ?? "",
   };
 }
@@ -216,11 +215,9 @@ const el = {
   drawerCancelBtn: document.getElementById("drawerCancelBtn"),
   drawerTaskForm: document.getElementById("drawerTaskForm"),
   drawerTaskTitle: document.getElementById("drawerTaskTitle"),
-  drawerTaskDesc: document.getElementById("drawerTaskDesc"),
   drawerTaskTime: document.getElementById("drawerTaskTime"),
   drawerTaskReminder: document.getElementById("drawerTaskReminder"),
   drawerTitleCount: document.getElementById("drawerTitleCount"),
-  drawerDescCount: document.getElementById("drawerDescCount"),
   drawerTitle: document.getElementById("drawerTitle"),
   drawerSaveBtn: document.querySelector(".drawer-save"),
   taskActionMenu: document.getElementById("taskActionMenu"),
@@ -398,7 +395,6 @@ function showToast(message) {
 
 function updateDrawerCounts() {
   el.drawerTitleCount.textContent = `${el.drawerTaskTitle.value.length}/100`;
-  el.drawerDescCount.textContent = `${el.drawerTaskDesc.value.length}/200`;
 }
 
 function resetDrawerForm() {
@@ -428,7 +424,6 @@ function openTaskDrawer(task = null) {
     el.drawerTitle.textContent = "Edit Task";
     el.drawerSaveBtn.lastChild.textContent = " Save Changes";
     el.drawerTaskTitle.value = task.text ?? "";
-    el.drawerTaskDesc.value = task.description ?? "";
     el.drawerTaskTime.value = timeValueFromTimestamp(task.createdAt);
     el.drawerTaskReminder.value = task.reminder ?? "";
     setDrawerPriority(task.priority ?? "medium");
@@ -481,7 +476,6 @@ el.taskDrawerOverlay.addEventListener("click", (e) => {
 });
 
 el.drawerTaskTitle.addEventListener("input", updateDrawerCounts);
-el.drawerTaskDesc.addEventListener("input", updateDrawerCounts);
 
 el.drawerTaskForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -493,7 +487,6 @@ el.drawerTaskForm.addEventListener("submit", (e) => {
   const form = new FormData(el.drawerTaskForm);
   const priority = form.get("drawerPriority") ?? "medium";
   const taskData = {
-    description: el.drawerTaskDesc.value.trim(),
     createdAt: timestampFromTime(el.drawerTaskTime.value),
     reminder: el.drawerTaskReminder.value,
   };

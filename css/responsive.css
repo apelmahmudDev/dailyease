@@ -133,7 +133,9 @@
   }
 
   .drawer-actions {
-    margin-top: 1.25rem;
+    gap: var(--sp-3);
+    margin: auto -1.35rem -1.35rem;
+    padding: 1rem 1.35rem 1.25rem;
   }
 
   .task-drawer {
