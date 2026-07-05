@@ -76,7 +76,7 @@ function loadDay() {
     return {
       day: {
         date: parsed.date,
-        tasks: Array.isArray(parsed.tasks) && parsed.tasks.length > 0 ? parsed.tasks : defaultTasks(),
+        tasks: Array.isArray(parsed.tasks) ? parsed.tasks : defaultTasks(),
         note: typeof parsed.note === "string" && parsed.note.length > 0 ? parsed.note : DEFAULT_NOTE,
         mood: parsed.mood ?? "happy",
       },
@@ -100,7 +100,12 @@ function saveDay(day) {
 }
 
 function resetDay() {
-  const fresh = blankDay();
+  const fresh = {
+    date: todayKey(),
+    tasks: [],
+    note: "",
+    mood: null,
+  };
   saveDay(fresh);
   return fresh;
 }
