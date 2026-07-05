@@ -29,7 +29,7 @@ function getElements() {
     progressBarFill: document.getElementById("progressBarFill"),
     progressStat: document.getElementById("progressStat"),
 
-    saveBtn: document.getElementById("saveBtn"),
+    themeToggleBtn: document.getElementById("themeToggleBtn"),
     resetBtnTop: document.getElementById("resetBtnTop"),
     resetOverlay: document.getElementById("resetOverlay"),
     cancelReset: document.getElementById("cancelReset"),

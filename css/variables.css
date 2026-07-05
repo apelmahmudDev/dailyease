@@ -70,3 +70,29 @@
 
   --max-width: 1220px;
 }
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #202020;
+  --surface: #2a2a2a;
+  --surface-soft: #262626;
+  --surface-tint: #1c1c1c;
+  --border: #3b3b3b;
+  --border-soft: #343434;
+
+  --ink-900: #f4f7f6;
+  --ink-700: #d4dcda;
+  --ink-500: #a6b2af;
+  --ink-300: #78827f;
+
+  --teal-800: #7be7d8;
+  --teal-700: #58d8ca;
+  --teal-600: #30c9bb;
+  --teal-500: #20b9aa;
+  --teal-100: #123d38;
+  --teal-50: #18332f;
+
+  --shadow-card: 0 12px 36px rgba(0, 0, 0, 0.22);
+  --shadow-pop: 0 18px 50px rgba(0, 0, 0, 0.42);
+}

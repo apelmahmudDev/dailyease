@@ -1,4 +1,5 @@
 const { day, isNewDay, storageBlocked } = loadDay();
+const THEME_KEY = "dailyease:theme:v1";
 const state = {
   day,
   editingId: null,
@@ -24,6 +25,46 @@ function showToast(message) {
   el.toast.classList.add("is-visible");
   clearTimeout(toastTimeout);
   toastTimeout = setTimeout(() => el.toast.classList.remove("is-visible"), 2000);
+}
+
+function loadThemePreference() {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch (err) {
+    console.warn("DailyEase: theme preference unavailable", err);
+    return null;
+  }
+}
+
+function saveThemePreference(theme) {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (err) {
+    console.warn("DailyEase: could not save theme preference", err);
+  }
+}
+
+function setTheme(theme, silent = false) {
+  const activeTheme = theme === "dark" ? "dark" : "light";
+  const isDark = activeTheme === "dark";
+
+  document.documentElement.dataset.theme = activeTheme;
+  el.themeToggleBtn.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+  el.themeToggleBtn.setAttribute("aria-pressed", String(isDark));
+  el.themeToggleBtn.title = isDark ? "Switch to light mode" : "Switch to dark mode";
+
+  if (!silent) showToast(isDark ? "Dark mode on." : "Light mode on.");
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  const nextTheme = currentTheme === "dark" ? "light" : "dark";
+  setTheme(nextTheme);
+  saveThemePreference(nextTheme);
+}
+
+function initTheme() {
+  setTheme(loadThemePreference() === "dark" ? "dark" : "light", true);
 }
 
 function updateDrawerCounts() {
@@ -296,9 +337,7 @@ function bindEvents() {
     persistNoteDebounced();
   });
 
-  el.saveBtn.addEventListener("click", () => {
-    persistWithFeedback("Day saved.");
-  });
+  el.themeToggleBtn.addEventListener("click", toggleTheme);
 
   el.resetBtnTop.addEventListener("click", openResetDialog);
   el.cancelReset.addEventListener("click", closeResetDialog);
@@ -317,6 +356,7 @@ function bindEvents() {
 }
 
 function init() {
+  initTheme();
   bindEvents();
   renderAll(state, el, closeTaskActionMenu);
   persist();
